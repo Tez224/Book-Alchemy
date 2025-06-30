@@ -20,6 +20,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+def get_cover_url(isbn):
+    """
+    Returns a cover image URL from Open Library based on the book's ISBN.
+    :param isbn: The ISBN of the book.
+    :return: A URL string pointing to the book cover image.
+    """
+    return f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
 
 @app.route('/', methods=['GET'])
 def index():
@@ -114,6 +121,19 @@ def add_book():
     return render_template('add_book.html')
 
 
+@app.route('/book/<int:book_id>', methods=['POST'])
+def book(book_id):
+    """
+    Deletes a book from the database based on its ID.
+    Shows a flash message and redirects to home.
+    :param book_id: ID of the book to delete.
+    """
+    book = Book.query.get_or_404(book_id)
+    db.session.delete(book)
+    db.session.commit()
+
+    flash(f"Book '{book.title}' was successfully deleted.")
+    return redirect('/')
 
 
 if __name__ == '__main__':
