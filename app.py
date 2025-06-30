@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+
 @app.route('/', methods=['GET'])
 def index():
     """
@@ -44,6 +45,36 @@ def index():
     books = query.all()
 
     return render_template('home.html', books=books, search=search_term, sort_by=sort_by)
+
+
+@app.route('/add_author', methods=['GET', 'POST'])
+def add_author():
+    """
+    Displays and handles the form to add a new author.
+    Accepts POST requests with author data and stores it in the database.
+    """
+    if request.method == 'POST':
+    # Maby ask here later to add one or multiple authors ????
+
+        # Convert form input (strings) to datetime objects
+        birth_date = datetime.strptime(request.form['birthdate'], '%Y-%m-%d')
+        death_date_input = request.form['date_of_death']
+        death_date = datetime.strptime(death_date_input, '%Y-%m-%d') if death_date_input else None
+
+        # Get new_data from form
+        new_author = Author(
+            name = request.form['name'],
+            birth_date = birth_date,
+            death_date = death_date,
+        )
+
+        # Add to the session and commit
+        db.session.add(new_author)
+        db.session.commit()
+
+        print("Author added!")
+
+    return render_template('add_author.html')
 
 
 if __name__ == '__main__':
