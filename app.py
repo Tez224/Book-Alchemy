@@ -77,6 +77,45 @@ def add_author():
     return render_template('add_author.html')
 
 
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    """
+    Displays and handles the form to add a new book.
+    Checks whether the author exists. If not, prompts user to add the author.
+    Links the book to the correct author and saves it.
+    """
+    if request.method == 'POST':
+        title = request.form['title']
+        isbn = request.form['isbn']
+        year = int(request.form['publication_year'])
+        publication_year = year if year else None
+        author_name = request.form['author_name'].strip()
+
+        author = Author.query.filter_by(name=author_name).first()
+
+        if not author:
+            # Author not found — redirect to "add author" page
+            message = f"Author '{author_name}' not found. Please add them first."
+            return render_template('/add_author.html', message=message)
+
+        # Author exists — create book linked to them
+        new_book = Book(
+            title=title,
+            isbn=isbn,
+            publication_year=publication_year,
+            author=author
+        )
+
+        db.session.add(new_book)
+        db.session.commit()
+
+        print("Book added!")
+
+    return render_template('add_book.html')
+
+
+
+
 if __name__ == '__main__':
     """
     Initializes the database and starts the Flask app.
