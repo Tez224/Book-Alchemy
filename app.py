@@ -162,12 +162,25 @@ def delete_book(book_id):
     :param book_id: ID of the book to delete.
     """
     book = Book.query.get_or_404(book_id)
+    author_id = book.author_id
+
+    # Check if this is the author's last book
+    is_last_book = Book.query.filter(
+        Book.author_id == author_id,
+        Book.id != book_id
+    ).count() == 0
+
     db.session.delete(book)
+
+    if is_last_book:
+        author = Author.query.get(author_id)
+        db.session.delete(author)
+        flash(f"Book '{book.title}' and author '{author.name}' (no remaining books) were deleted.")
+    else:
+        flash(f"Book '{book.title}' was successfully deleted.")
+
     db.session.commit()
-
-    flash(f"Book '{book.title}' was successfully deleted.")
     return redirect('/')
-
 
 if __name__ == '__main__':
     """
