@@ -189,10 +189,4 @@ if __name__ == '__main__':
     """
     # Ensure the 'data/' folder really exists at runtime
     os.makedirs(os.path.join(basedir, 'data'), exist_ok=True)
-
-    #with app.app_context():
-        #db.create_all()
-        #print(Author.__table__)
-        #print(Book.__table__)
-        #print("Database and tables created.")
     app.run(debug=True)
