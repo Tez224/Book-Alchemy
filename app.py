@@ -115,34 +115,43 @@ def add_book():
     Checks whether the author exists. If not, prompts user to add the author.
     Links the book to the correct author and saves it.
     """
+    authors = Author.query.order_by(Author.name).all()
+
     if request.method == 'POST':
-        title = request.form['title']
-        isbn = request.form['isbn']
-        year = int(request.form['publication_year'])
-        publication_year = year if year else None
-        author_name = request.form['author_name'].strip()
+        try:
+            title = request.form['title']
+            isbn = request.form['isbn']
+            year = request.form.get('publication_year')
+            publication_year = int(year) if year else None
+            author_id = int(request.form['author_id'])
 
-        author = Author.query.filter_by(name=author_name).first()
+            author = Author.query.get('author_id')
 
-        if not author:
-            # Author not found — redirect to "add author" page
-            message = f"Author '{author_name}' not found. Please add them first."
-            return render_template('/add_author.html', message=message)
+            if not author:
+                flash('Invalid author selected!', 'error')
+                return render_template('add_book.html', authors=authors)
 
-        # Author exists — create book linked to them
-        new_book = Book(
-            title=title,
-            isbn=isbn,
-            publication_year=publication_year,
-            author=author
-        )
+            # Author exists — create book linked to them
+            new_book = Book(
+                title=title,
+                isbn=isbn,
+                publication_year=publication_year,
+                author_id=author_id
+            )
 
-        db.session.add(new_book)
-        db.session.commit()
+            db.session.add(new_book)
+            db.session.commit()
 
-        print("Book added!")
+            flash('Book added successfully!', 'success')
+            return redirect('index')  # Redirect to books listing
 
-    return render_template('add_book.html')
+        except ValueError:
+            flash('Invalid input in numeric fields!', 'error')
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred: {}'.format(e), 'error')
+
+    return render_template('add_book.html', authors=authors)
 
 
 @app.route('/book/<int:book_id>', methods=['POST'])

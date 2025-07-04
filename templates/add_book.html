@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <title>Add Book</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
   </head>
@@ -17,12 +18,18 @@
   <label for="publication_year">Publication Year:</label>
   <input type="text" id="publication_year" name="publication_year"><br><br>
 
-  <label> Author Name:</label>
-  <input type="text" name="author_name" required><br>
-
+  <label for="author_id">Author:</label>
+            <select id="author_id" name="author_id" required>
+                <option value="">-- Select Author --</option>
+                {% for author in authors %}
+                    <option value="{{ author.id }}">{{ author.name }}</option>
+                {% endfor %}
+            </select>
 
   <input type="submit" value="Add Book">
   </form>
+
+  <p>Don't see the author? <a href="{{ url_for('add_author') }}">Add a new author</a></p>
 
   </body>
 </html>
