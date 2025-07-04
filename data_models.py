@@ -29,7 +29,7 @@ class Book(db.Model):
 
     Attributes:
         id (int): Primary key, auto-incremented.
-        isbn (int): The book's ISBN number.
+        isbn (str): The book's ISBN number.
         title (str): Title of the book.
         publication_year (int): Year the book was published.
         author_id (int): Foreign key linking to the Author table.
