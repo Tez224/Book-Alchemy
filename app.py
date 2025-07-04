@@ -61,25 +61,49 @@ def add_author():
     Accepts POST requests with author data and stores it in the database.
     """
     if request.method == 'POST':
-    # Maby ask here later to add one or multiple authors ????
+        try:
+            # Validate required fields
+            if not request.form['name']:
+                flash('Name is required!', 'error')
+                return render_template('add_author.html')
 
-        # Convert form input (strings) to datetime objects
-        birth_date = datetime.strptime(request.form['birthdate'], '%Y-%m-%d')
-        death_date_input = request.form['date_of_death']
-        death_date = datetime.strptime(death_date_input, '%Y-%m-%d') if death_date_input else None
+            if not request.form['birthdate']:
+                flash('Birth date is required!', 'error')
+                return render_template('add_author.html')
 
-        # Get new_data from form
-        new_author = Author(
-            name = request.form['name'],
-            birth_date = birth_date,
-            death_date = death_date,
-        )
+            # Convert form input (strings) to datetime objects
+            try:
+                birth_date = datetime.strptime(request.form['birthdate'], '%Y-%m-%d')
+            except ValueError:
+                flash('Birth date format is invalid! Please use YYY-MM-DD', 'error')
+                return render_template('add_author.html')
 
-        # Add to the session and commit
-        db.session.add(new_author)
-        db.session.commit()
+            death_date = None
+            death_date_input = request.form.get('date_of_death', '')
+            if death_date_input:
+                try:
+                    death_date = datetime.strptime(death_date_input, '%Y-%m-%d') if death_date_input else None
+                except ValueError:
+                    flash('Death date format is invalid! Please use YYYY-MM-DD or leave empty.', 'error')
+                    return render_template('add_author.html')
 
-        print("Author added!")
+            # Get new_data from form
+            new_author = Author(
+                name = request.form['name'],
+                birth_date = birth_date,
+                death_date = death_date,
+            )
+
+            # Add to the session and commit
+            db.session.add(new_author)
+            db.session.commit()
+
+            flash('Author added successfully!', 'success')
+            return render_template('add_author.html')
+
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred: {}'.format(e), 'error')
 
     return render_template('add_author.html')
 
