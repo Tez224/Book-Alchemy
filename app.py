@@ -154,8 +154,8 @@ def add_book():
     return render_template('add_book.html', authors=authors)
 
 
-@app.route('/book/<int:book_id>', methods=['POST'])
-def book(book_id):
+@app.route('/book/<int:book_id>/delete', methods=['POST'])
+def delete_book(book_id):
     """
     Deletes a book from the database based on its ID.
     Shows a flash message and redirects to home.
